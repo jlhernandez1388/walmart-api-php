@@ -1499,7 +1499,7 @@
                 "type": "object",
                 "properties": {
                     "orderLines": {
-                        "$ref": "#\/components\/schemas\/RefundLinesType"
+                        "$ref": "#\/components\/schemas\/OrderLinesType"
                     }
                 },
                 "description": "Information about a shipment",

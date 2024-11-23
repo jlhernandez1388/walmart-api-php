@@ -42,6 +42,26 @@
           }
         },
         "schemas": {}
+      },
+      "orders": {
+        "components": {
+          "schemas": {
+            "Order": {
+              "properties": {
+                "orderLines": {
+                  "$ref": "#\/components\/schemas\/OrderLinesType"
+                }
+              }
+            },
+            "GetOrderResponseRecord": {
+              "properties": {
+                "orderLines": {
+                  "$ref": "#\/components\/schemas\/OrderLinesType"
+                }
+              }
+            }
+          }
+        }
       }
     }
   }

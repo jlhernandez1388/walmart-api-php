@@ -3149,7 +3149,7 @@
                         "$ref": "#\/components\/schemas\/ShippingInfoType"
                     },
                     "orderLines": {
-                        "$ref": "#\/components\/schemas\/RefundLinesType"
+                        "$ref": "#\/components\/schemas\/OrderLinesType"
                     },
                     "paymentTypes": {
                         "type": "array",
@@ -4242,7 +4242,7 @@
                         "description": "Optional. Use this parameter only to update tracking information after order is shipped. Use 'PARTIAL_UPDATE' as value. Here PARTIAL_UPDATE will indicate that post shipment tracking information needs to be updated"
                     },
                     "orderLines": {
-                        "$ref": "#\/components\/schemas\/RefundLinesType"
+                        "$ref": "#\/components\/schemas\/OrderLinesType"
                     }
                 },
                 "description": "Information about a shipment",
@@ -4739,7 +4739,7 @@
                         "$ref": "#\/components\/schemas\/ShippingInfoType"
                     },
                     "orderLines": {
-                        "$ref": "#\/components\/schemas\/RefundLinesType"
+                        "$ref": "#\/components\/schemas\/OrderLinesType"
                     },
                     "paymentTypes": {
                         "type": "array",
