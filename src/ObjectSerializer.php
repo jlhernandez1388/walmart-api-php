@@ -43,7 +43,7 @@ class ObjectSerializer
      * Change the date format
      *
      * @param string $format   the new date format to use
-     *
+     * 
      * @return void
      */
     public static function setDateTimeFormat($format): void
@@ -134,13 +134,13 @@ class ObjectSerializer
      *
      * @return string the shorten timestamp
      */
-    public static function sanitizeTimestamp(string $timestamp): string
+    public static function sanitizeTimestamp(string $timestamp): DateTime
     {
-        if (!is_string($timestamp)) {
-            return $timestamp;
+        if (is_numeric($timestamp)) {
+            return DateTime::createFromFormat('U', (int)($timestamp / 1000));
         }
 
-        return preg_replace('/(:\d{2}.\d{6})\d*/', '$1', $timestamp);
+        return new DateTime(preg_replace('/(:\d{2}.\d{6})\d*/', '$1', $timestamp));
     }
 
     /**
@@ -158,7 +158,7 @@ class ObjectSerializer
 
     /**
      * Checks if a value is empty, based on its OpenAPI type.
-     *
+     * 
      * @param mixed  $value
      * @param string $openApiType
      *
@@ -209,7 +209,7 @@ class ObjectSerializer
      * @param string $style       Parameter serialization style
      * @param bool   $explode     Parameter explode option
      * @param bool   $required    Whether query param is required or not
-     *
+     * 
      * @return array
      */
     public static function toQueryValue(
@@ -469,7 +469,7 @@ class ObjectSerializer
             // determine file name
             if (
                 is_array($httpHeaders)
-                && array_key_exists('Content-Disposition', $httpHeaders) 
+                && array_key_exists('Content-Disposition', $httpHeaders)
                 && preg_match('/inline; filename=[\'"]?([^\'"\s]+)[\'"]?$/i', $httpHeaders['Content-Disposition'], $match)
             ) {
                 $filename = Configuration::getTempFolderPath() . DIRECTORY_SEPARATOR . self::sanitizeFilename($match[1]);
@@ -529,7 +529,7 @@ class ObjectSerializer
                     if ($instance::isNullable($property)) {
                         $instance->$propertySetter(null);
                     }
-
+                    
                     continue;
                 }
 
@@ -555,7 +555,7 @@ class ObjectSerializer
      * @param string       $numeric_prefix If numeric indices are used in the base array and this parameter is provided, it will be prepended to the numeric index for elements in the base array only.
      * @param string|null  $arg_separator  arg_separator.output is used to separate arguments but may be overridden by specifying this parameter.
      * @param int          $encoding_type  Encoding type. By default, PHP_QUERY_RFC1738.
-     *
+     * 
      * @return string
      */
     public static function buildQuery(
