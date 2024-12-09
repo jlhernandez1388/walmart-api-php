@@ -454,7 +454,7 @@ class ObjectSerializer
                     // Some APIs return a date-time with too high nanosecond
                     // precision for php's DateTime to handle.
                     // With provided regexp 6 digits of microseconds saved
-                    return new DateTime(self::sanitizeTimestamp($data));
+                    return self::sanitizeTimestamp($data);
                 }
             } else {
                 return null;
