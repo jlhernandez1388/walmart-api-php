@@ -49,7 +49,7 @@ class PricesApi extends BaseApi
         'getRepricerIncentive' => 'application/json',
         'getStrategies' => 'application/json',
         'optCapProgramInPrice' => 'application/json',
-        'priceBulkUploads' => 'multipart/form-data',
+        'priceBulkUploads' => 'application/json',
         'updatePrice' => 'application/json',
         'updateRepricerIncentive' => 'application/json',
         'updateStrategy' => 'application/json',
@@ -1852,7 +1852,7 @@ class PricesApi extends BaseApi
      * Update bulk prices (Multiple)
      *
      * @param  string $feedType The feed Type (required)
-     * @param  \SplFileObject $file Feed file to upload (required)
+     * @param  string $json JSON payload for price update (required)
      *
      * @throws \Walmart\ApiException on non-2xx response
      * @throws \InvalidArgumentException
@@ -1860,9 +1860,9 @@ class PricesApi extends BaseApi
      */
     public function priceBulkUploads(
         string $feedType,
-        \SplFileObject $file
+        string $json
     ): \Walmart\Models\MP\US\Prices\FeedId {
-        return $this->priceBulkUploadsWithHttpInfo($feedType, $file);
+        return $this->priceBulkUploadsWithHttpInfo($feedType, $json);
     }
 
     /**
@@ -1871,7 +1871,7 @@ class PricesApi extends BaseApi
      * Update bulk prices (Multiple)
      *
      * @param  string $feedType The feed Type (required)
-     * @param  \SplFileObject $file Feed file to upload (required)
+     * @param  string $json JSON payload for price update (required)
      *
      * @throws \Walmart\ApiException on non-2xx response
      * @throws \InvalidArgumentException
@@ -1879,9 +1879,9 @@ class PricesApi extends BaseApi
      */
     protected function priceBulkUploadsWithHttpInfo(
         string $feedType,
-        \SplFileObject $file,
+        string $json
     ): \Walmart\Models\MP\US\Prices\FeedId {
-        $request = $this->priceBulkUploadsRequest($feedType, $file);
+        $request = $this->priceBulkUploadsRequest($feedType, $json);
         $this->writeDebug($request);
         $this->writeDebug((string) $request->getBody());
 
@@ -1928,41 +1928,21 @@ class PricesApi extends BaseApi
                     (string) $response->getBody()
                 );
             }
-            switch ($statusCode) {
-                case 200:
-                    if ('\Walmart\Models\MP\US\Prices\FeedId' === '\SplFileObject') {
-                        $content = $response->getBody(); //stream goes to serializer
-                    } else {
-                        $content = (string) $response->getBody();
-                        if ('\Walmart\Models\MP\US\Prices\FeedId' !== 'string') {
-                            $content = json_decode($content);
-                        }
-                    }
-
-                    return ObjectSerializer::deserialize($content, '\Walmart\Models\MP\US\Prices\FeedId', $response->getHeaders());
-            }
-
             $returnType = '\Walmart\Models\MP\US\Prices\FeedId';
-            if ($returnType === '\SplFileObject') {
-                $content = $response->getBody(); //stream goes to serializer
-            } else {
-                $content = (string) $response->getBody();
-                if ($returnType !== 'string') {
-                    $content = json_decode($content);
-                }
+            $content = (string) $response->getBody();
+            if ($returnType !== 'string') {
+                $content = json_decode($content);
             }
 
             return ObjectSerializer::deserialize($content, $returnType, $response->getHeaders());
         } catch (ApiException $e) {
-            switch ($e->getCode()) {
-                case 200:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Walmart\Models\MP\US\Prices\FeedId',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    break;
+            if ($e->getCode() === 200) {
+                $data = ObjectSerializer::deserialize(
+                    $e->getResponseBody(),
+                    '\Walmart\Models\MP\US\Prices\FeedId',
+                    $e->getResponseHeaders()
+                );
+                $e->setResponseObject($data);
             }
 
             $this->writeDebug($e);
@@ -1976,16 +1956,16 @@ class PricesApi extends BaseApi
      * Update bulk prices (Multiple)
      *
      * @param  string $feedType The feed Type (required)
-     * @param  \SplFileObject $file Feed file to upload (required)
+     * @param  string $json JSON payload for price update (required)
      *
      * @throws \InvalidArgumentException
      * @return \GuzzleHttp\Promise\PromiseInterface
      */
     public function priceBulkUploadsAsync(
         string $feedType,
-        \SplFileObject $file
+        string $json
     ): PromiseInterface {
-        return $this->priceBulkUploadsAsyncWithHttpInfo($feedType, $file)
+        return $this->priceBulkUploadsAsyncWithHttpInfo($feedType, $json)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -1999,17 +1979,17 @@ class PricesApi extends BaseApi
      * Update bulk prices (Multiple)
      *
      * @param  string $feedType The feed Type (required)
-     * @param  \SplFileObject $file Feed file to upload (required)
+     * @param  string $json JSON payload for price update (required)
      *
      * @throws \InvalidArgumentException
      * @return \GuzzleHttp\Promise\PromiseInterface
      */
     protected function priceBulkUploadsAsyncWithHttpInfo(
         string $feedType,
-        \SplFileObject $file,
+        string $json
     ): PromiseInterface {
         $returnType = '\Walmart\Models\MP\US\Prices\FeedId';
-        $request = $this->priceBulkUploadsRequest($feedType, $file);
+        $request = $this->priceBulkUploadsRequest($feedType, $json);
         $this->writeDebug($request);
         $this->writeDebug((string) $request->getBody());
 
@@ -2019,13 +1999,9 @@ class PricesApi extends BaseApi
                 function ($response) use ($returnType) {
                     $this->writeDebug($response);
                     $this->writeDebug((string) $response->getBody());
-                    if ($returnType === '\SplFileObject') {
-                        $content = $response->getBody(); //stream goes to serializer
-                    } else {
-                        $content = (string) $response->getBody();
-                        if ($returnType !== 'string') {
-                            $content = json_decode($content);
-                        }
+                    $content = (string) $response->getBody();
+                    if ($returnType !== 'string') {
+                        $content = json_decode($content);
                     }
 
                     return ObjectSerializer::deserialize($content, $returnType, $response->getHeaders());
@@ -2055,14 +2031,14 @@ class PricesApi extends BaseApi
      * Create request for operation 'priceBulkUploads'
      *
      * @param  string $feedType The feed Type (required)
-     * @param  \SplFileObject $file Feed file to upload (required)
+     * @param  string $json JSON payload for price update (required)
      *
      * @throws \InvalidArgumentException
      * @return \GuzzleHttp\Psr7\Request
      */
     protected function priceBulkUploadsRequest(
         string $feedType,
-        \SplFileObject $file,
+        string $json
     ): Request {
         $contentType = self::contentTypes['priceBulkUploads'];
 
@@ -2072,20 +2048,15 @@ class PricesApi extends BaseApi
                 'Missing the required parameter $feedType when calling priceBulkUploads'
             );
         }
-        // verify the required parameter 'file' is set
-        if ($file === null || (is_array($file) && count($file) === 0)) {
+        // verify the required parameter 'json' is set
+        if (empty($json)) {
             throw new \InvalidArgumentException(
-                'Missing the required parameter $file when calling priceBulkUploads'
+                'Missing the required parameter $json when calling priceBulkUploads'
             );
         }
-        $resourcePath = '/v3/feeds';
-        $formParams = [];
-        $queryParams = [];
-        $headerParams = [];
-        $httpBody = '';
-        $multipart = false;
-        $method = 'POST';
 
+        $resourcePath = '/v3/feeds';
+        $method = 'POST';
         // query params
         $queryParams = array_merge(
             ObjectSerializer::toQueryValue(
@@ -2095,26 +2066,13 @@ class PricesApi extends BaseApi
                 'form', // style
                 true, // explode
                 true // required
-            ) ?? [],
+            ) ?? []
         );
-
-        // form params
-        if ($file !== null) {
-            $multipart = true;
-            $formParams['file'] = [];
-            $paramFiles = is_array($file) ? $file : [$file];
-            foreach ($paramFiles as $paramFile) {
-                $formParams['file'][] = \GuzzleHttp\Psr7\Utils::tryFopen(
-                    ObjectSerializer::toFormValue($paramFile),
-                    'rb'
-                );
-            }
-        }
 
         $headers = $this->headerSelector->selectHeaders(
             ['application/json'],
             $contentType,
-            $multipart
+            false
         );
 
         $defaultHeaders = parent::getDefaultHeaders();
@@ -2122,42 +2080,10 @@ class PricesApi extends BaseApi
             $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
         }
         $headers = array_merge(
-            $defaultHeaders,
-            $headerParams,
+            $defaultHeaders, 
             $headers
         );
-
-        // for model (json/xml)
-        if (count($formParams) > 0) {
-            if ($multipart) {
-                $multipartContents = [];
-                foreach ($formParams as $formParamName => $formParamValue) {
-                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
-                    foreach ($formParamValueItems as $formParamValueItem) {
-                        $multipartContents[] = [
-                            'name' => $formParamName,
-                            'contents' => $formParamValueItem
-                        ];
-                    }
-                }
-                // for HTTP post (form)
-                $httpBody = new MultipartStream($multipartContents);
-            } elseif (stripos($headers['Content-Type'], 'application/json') !== false) {
-                # if Content-Type contains "application/json", json_encode the form parameters
-                $httpBody = \GuzzleHttp\Utils::jsonEncode($formParams);
-            } else {
-                // for HTTP post (form)
-                $httpBody = ObjectSerializer::buildQuery($formParams);
-            }
-        }
-
         $query = ObjectSerializer::buildQuery($queryParams);
-        $requestInfo = [
-            'path' => $resourcePath,
-            'method' => $method,
-            'timestamp' => $defaultHeaders['WM_SEC.TIMESTAMP'],
-            'query' => $query,
-        ];
 
         // this endpoint requires Bearer authentication (access token)
         $token = $this->config->getAccessToken();
@@ -2170,7 +2096,7 @@ class PricesApi extends BaseApi
             $method,
             $operationHost . $resourcePath . ($query ? "?{$query}" : ''),
             $headers,
-            $httpBody
+            $json
         );
     }
 
