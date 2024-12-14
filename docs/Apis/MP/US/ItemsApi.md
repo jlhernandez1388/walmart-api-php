@@ -278,7 +278,7 @@ See the [Authorization](../../../../README.md#authorization) section of the READ
 ## `getItemAssociations()`
 
 ```php
-getItemAssociations($itemsAssociationsResponseDTO): \Walmart\Models\MP\US\Items\ItemsAssociationsResponseDTO
+getItemAssociations($itemsAssociationsRequestDTO): \Walmart\Models\MP\US\Items\ItemsAssociationsResponseDTO
 ```
 Get Item Associations
 
@@ -302,10 +302,10 @@ $config = new Walmart\Configuration([
 
 $api = Walmart::marketplace($config)->items();
 
-$itemsAssociationsResponseDTO = {"items":[{"sku":"RG-IRAE-79VD"},{"sku":"AC73891"}]}; // \Walmart\Models\MP\US\Items\ItemsAssociationsResponseDTO | Request fields
+$itemsAssociationsRequestDTO = {"items":[{"sku":"RG-IRAE-79VD"},{"sku":"AC73891"}]}; // \Walmart\Models\MP\US\Items\ItemsAssociationsRequestDTO | Request fields
 
 try {
-    $result = $api->getItemAssociations($itemsAssociationsResponseDTO);
+    $result = $api->getItemAssociations($itemsAssociationsRequestDTO);
     print_r($result);
 } catch (Exception $e) {
     echo "Exception when calling ItemsApi->getItemAssociations: {$e->getMessage()}\n";
@@ -315,7 +315,7 @@ try {
 ### Parameters
 | Name | Type | Description  | Notes |
 | ------------- | ------------- | ------------- | ------------- |
-| **itemsAssociationsResponseDTO** | [**\Walmart\Models\MP\US\Items\ItemsAssociationsResponseDTO**](../../../Models/MP/US/Items/ItemsAssociationsResponseDTO.md)| Request fields | |
+| **itemsAssociationsRequestDTO** | [**\Walmart\Models\MP\US\Items\ItemsAssociationsRequestDTO**](../../../Models/MP/US/Items/ItemsAssociationsRequestDTO.md)| Request fields | |
 
 
 ### Return type

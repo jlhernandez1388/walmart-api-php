@@ -352,7 +352,7 @@
                     "content": {
                         "application\/json": {
                             "schema": {
-                                "$ref": "#\/components\/schemas\/ItemsAssociationsResponseDTO"
+                                "$ref": "#\/components\/schemas\/ItemsAssociationsRequestDTO"
                             },
                             "example": {
                                 "items": [

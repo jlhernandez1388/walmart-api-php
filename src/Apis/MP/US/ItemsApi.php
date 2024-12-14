@@ -1430,16 +1430,16 @@ class ItemsApi extends BaseApi
      *
      * Get Item Associations
      *
-     * @param  \Walmart\Models\MP\US\Items\ItemsAssociationsResponseDTO $itemsAssociationsResponseDTO Request fields (required)
+     * @param  \Walmart\Models\MP\US\Items\ItemsAssociationsRequestDTO $itemsAssociationsRequestDTO Request fields (required)
      *
      * @throws \Walmart\ApiException on non-2xx response
      * @throws \InvalidArgumentException
      * @return \Walmart\Models\MP\US\Items\ItemsAssociationsResponseDTO
      */
     public function getItemAssociations(
-        \Walmart\Models\MP\US\Items\ItemsAssociationsResponseDTO $itemsAssociationsResponseDTO
+        \Walmart\Models\MP\US\Items\ItemsAssociationsRequestDTO $itemsAssociationsRequestDTO
     ): \Walmart\Models\MP\US\Items\ItemsAssociationsResponseDTO {
-        return $this->getItemAssociationsWithHttpInfo($itemsAssociationsResponseDTO);
+        return $this->getItemAssociationsWithHttpInfo($itemsAssociationsRequestDTO);
     }
 
     /**
@@ -1447,16 +1447,16 @@ class ItemsApi extends BaseApi
      *
      * Get Item Associations
      *
-     * @param  \Walmart\Models\MP\US\Items\ItemsAssociationsResponseDTO $itemsAssociationsResponseDTO Request fields (required)
+     * @param  \Walmart\Models\MP\US\Items\ItemsAssociationsRequestDTO $itemsAssociationsRequestDTO Request fields (required)
      *
      * @throws \Walmart\ApiException on non-2xx response
      * @throws \InvalidArgumentException
      * @return \Walmart\Models\MP\US\Items\ItemsAssociationsResponseDTO
      */
     protected function getItemAssociationsWithHttpInfo(
-        \Walmart\Models\MP\US\Items\ItemsAssociationsResponseDTO $itemsAssociationsResponseDTO,
+        \Walmart\Models\MP\US\Items\ItemsAssociationsRequestDTO $itemsAssociationsRequestDTO,
     ): \Walmart\Models\MP\US\Items\ItemsAssociationsResponseDTO {
-        $request = $this->getItemAssociationsRequest($itemsAssociationsResponseDTO);
+        $request = $this->getItemAssociationsRequest($itemsAssociationsRequestDTO);
         $this->writeDebug($request);
         $this->writeDebug((string) $request->getBody());
 
@@ -1550,15 +1550,15 @@ class ItemsApi extends BaseApi
      *
      * Get Item Associations
      *
-     * @param  \Walmart\Models\MP\US\Items\ItemsAssociationsResponseDTO $itemsAssociationsResponseDTO Request fields (required)
+     * @param  \Walmart\Models\MP\US\Items\ItemsAssociationsRequestDTO $itemsAssociationsRequestDTO Request fields (required)
      *
      * @throws \InvalidArgumentException
      * @return \GuzzleHttp\Promise\PromiseInterface
      */
     public function getItemAssociationsAsync(
-        \Walmart\Models\MP\US\Items\ItemsAssociationsResponseDTO $itemsAssociationsResponseDTO
+        \Walmart\Models\MP\US\Items\ItemsAssociationsRequestDTO $itemsAssociationsRequestDTO
     ): PromiseInterface {
-        return $this->getItemAssociationsAsyncWithHttpInfo($itemsAssociationsResponseDTO)
+        return $this->getItemAssociationsAsyncWithHttpInfo($itemsAssociationsRequestDTO)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -1571,16 +1571,16 @@ class ItemsApi extends BaseApi
      *
      * Get Item Associations
      *
-     * @param  \Walmart\Models\MP\US\Items\ItemsAssociationsResponseDTO $itemsAssociationsResponseDTO Request fields (required)
+     * @param  \Walmart\Models\MP\US\Items\ItemsAssociationsRequestDTO $itemsAssociationsRequestDTO Request fields (required)
      *
      * @throws \InvalidArgumentException
      * @return \GuzzleHttp\Promise\PromiseInterface
      */
     protected function getItemAssociationsAsyncWithHttpInfo(
-        \Walmart\Models\MP\US\Items\ItemsAssociationsResponseDTO $itemsAssociationsResponseDTO,
+        \Walmart\Models\MP\US\Items\ItemsAssociationsRequestDTO $itemsAssociationsRequestDTO,
     ): PromiseInterface {
         $returnType = '\Walmart\Models\MP\US\Items\ItemsAssociationsResponseDTO';
-        $request = $this->getItemAssociationsRequest($itemsAssociationsResponseDTO);
+        $request = $this->getItemAssociationsRequest($itemsAssociationsRequestDTO);
         $this->writeDebug($request);
         $this->writeDebug((string) $request->getBody());
 
@@ -1625,20 +1625,20 @@ class ItemsApi extends BaseApi
     /**
      * Create request for operation 'getItemAssociations'
      *
-     * @param  \Walmart\Models\MP\US\Items\ItemsAssociationsResponseDTO $itemsAssociationsResponseDTO Request fields (required)
+     * @param  \Walmart\Models\MP\US\Items\ItemsAssociationsRequestDTO $itemsAssociationsRequestDTO Request fields (required)
      *
      * @throws \InvalidArgumentException
      * @return \GuzzleHttp\Psr7\Request
      */
     protected function getItemAssociationsRequest(
-        \Walmart\Models\MP\US\Items\ItemsAssociationsResponseDTO $itemsAssociationsResponseDTO,
+        \Walmart\Models\MP\US\Items\ItemsAssociationsRequestDTO $itemsAssociationsRequestDTO,
     ): Request {
         $contentType = self::contentTypes['getItemAssociations'];
 
-        // verify the required parameter 'itemsAssociationsResponseDTO' is set
-        if ($itemsAssociationsResponseDTO === null || (is_array($itemsAssociationsResponseDTO) && count($itemsAssociationsResponseDTO) === 0)) {
+        // verify the required parameter 'itemsAssociationsRequestDTO' is set
+        if ($itemsAssociationsRequestDTO === null || (is_array($itemsAssociationsRequestDTO) && count($itemsAssociationsRequestDTO) === 0)) {
             throw new \InvalidArgumentException(
-                'Missing the required parameter $itemsAssociationsResponseDTO when calling getItemAssociations'
+                'Missing the required parameter $itemsAssociationsRequestDTO when calling getItemAssociations'
             );
         }
         $resourcePath = '/v3/items/associations';
@@ -1666,12 +1666,12 @@ class ItemsApi extends BaseApi
         );
 
         // for model (json/xml)
-        if (isset($itemsAssociationsResponseDTO)) {
+        if (isset($itemsAssociationsRequestDTO)) {
             if (stripos($headers['Content-Type'], 'application/json') !== false) {
                 # if Content-Type contains "application/json", json_encode the body
-                $httpBody = \GuzzleHttp\Utils::jsonEncode(ObjectSerializer::sanitizeForSerialization($itemsAssociationsResponseDTO));
+                $httpBody = \GuzzleHttp\Utils::jsonEncode(ObjectSerializer::sanitizeForSerialization($itemsAssociationsRequestDTO));
             } else {
-                $httpBody = $itemsAssociationsResponseDTO;
+                $httpBody = $itemsAssociationsRequestDTO;
             }
         } else if (count($formParams) > 0) {
             if ($multipart) {
