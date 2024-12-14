@@ -51,7 +51,7 @@ class ItemsApi extends BaseApi
         'getSearchResult' => 'application/json',
         'getTaxonomyResponse' => 'application/json',
         'getVariantCount' => 'application/json',
-        'itemBulkUploads' => 'multipart/form-data',
+        'itemBulkUploads' => 'application/json',
         'retireAnItem' => 'application/json',
     ];
 
@@ -2613,7 +2613,7 @@ class ItemsApi extends BaseApi
      * Bulk Item Setup (Multiple)
      *
      * @param  string $feedType The feed Type (required)
-     * @param  \SplFileObject $file (required)
+     * @param  string $json JSON payload for item setup (required)
      *
      * @throws \Walmart\ApiException on non-2xx response
      * @throws \InvalidArgumentException
@@ -2621,9 +2621,9 @@ class ItemsApi extends BaseApi
      */
     public function itemBulkUploads(
         string $feedType,
-        \SplFileObject $file
+        string $json
     ): \Walmart\Models\MP\US\Items\FeedId {
-        return $this->itemBulkUploadsWithHttpInfo($feedType, $file);
+        return $this->itemBulkUploadsWithHttpInfo($feedType, $json);
     }
 
     /**
@@ -2632,7 +2632,7 @@ class ItemsApi extends BaseApi
      * Bulk Item Setup (Multiple)
      *
      * @param  string $feedType The feed Type (required)
-     * @param  \SplFileObject $file (required)
+     * @param  string $json JSON payload for item setup (required)
      *
      * @throws \Walmart\ApiException on non-2xx response
      * @throws \InvalidArgumentException
@@ -2640,90 +2640,34 @@ class ItemsApi extends BaseApi
      */
     protected function itemBulkUploadsWithHttpInfo(
         string $feedType,
-        \SplFileObject $file,
+        string $json
     ): \Walmart\Models\MP\US\Items\FeedId {
-        $request = $this->itemBulkUploadsRequest($feedType, $file);
+        $request = $this->itemBulkUploadsRequest($feedType, $json);
         $this->writeDebug($request);
         $this->writeDebug((string) $request->getBody());
 
         try {
             $options = $this->createHttpClientOption();
-            try {
-                $response = $this->client->send($request, $options);
-                $this->writeDebug($response);
-                $this->writeDebug((string) $response->getBody());
-            } catch (RequestException $e) {
-                $hasResponse = !empty($e->hasResponse());
-                $body = (string) ($hasResponse ? $e->getResponse()->getBody() : '[NULL response]');
-                $this->writeDebug($e->getResponse());
-                $this->writeDebug($body);
+            $response = $this->client->send($request, $options);
 
-                throw new ApiException(
-                    "[{$e->getCode()}] {$body}",
-                    (int) $e->getCode(),
-                    $hasResponse ? $e->getResponse()->getHeaders() : null,
-                    $body
-                );
-            } catch (ConnectException $e) {
-                $this->writeDebug($e->getMessage());
+            $this->writeDebug($response);
+            $this->writeDebug((string) $response->getBody());
 
-                throw new ApiException(
-                    "[{$e->getCode()}] {$e->getMessage()}",
-                    (int) $e->getCode(),
-                    null,
-                    null
-                );
-            }
-
-            $statusCode = $response->getStatusCode();
-
-            if ($statusCode < 200 || $statusCode > 299) {
-                throw new ApiException(
-                    sprintf(
-                        '[%d] Error connecting to the API (%s)',
-                        $statusCode,
-                        (string) $request->getUri()
-                    ),
-                    $statusCode,
-                    $response->getHeaders(),
-                    (string) $response->getBody()
-                );
-            }
-            switch ($statusCode) {
-                case 200:
-                    if ('\Walmart\Models\MP\US\Items\FeedId' === '\SplFileObject') {
-                        $content = $response->getBody(); //stream goes to serializer
-                    } else {
-                        $content = (string) $response->getBody();
-                        if ('\Walmart\Models\MP\US\Items\FeedId' !== 'string') {
-                            $content = json_decode($content);
-                        }
-                    }
-
-                    return ObjectSerializer::deserialize($content, '\Walmart\Models\MP\US\Items\FeedId', $response->getHeaders());
-            }
-
+            $content = (string) $response->getBody();
             $returnType = '\Walmart\Models\MP\US\Items\FeedId';
-            if ($returnType === '\SplFileObject') {
-                $content = $response->getBody(); //stream goes to serializer
-            } else {
-                $content = (string) $response->getBody();
-                if ($returnType !== 'string') {
-                    $content = json_decode($content);
-                }
+            if ($returnType !== 'string') {
+                $content = json_decode($content);
             }
 
             return ObjectSerializer::deserialize($content, $returnType, $response->getHeaders());
         } catch (ApiException $e) {
-            switch ($e->getCode()) {
-                case 200:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Walmart\Models\MP\US\Items\FeedId',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    break;
+            if ($e->getCode() === 200) {
+                $data = ObjectSerializer::deserialize(
+                    $e->getResponseBody(),
+                    '\Walmart\Models\MP\US\Items\FeedId',
+                    $e->getResponseHeaders()
+                );
+                $e->setResponseObject($data);
             }
 
             $this->writeDebug($e);
@@ -2737,16 +2681,16 @@ class ItemsApi extends BaseApi
      * Bulk Item Setup (Multiple)
      *
      * @param  string $feedType The feed Type (required)
-     * @param  \SplFileObject $file (required)
+     * @param  string $json JSON payload for item setup (required)
      *
      * @throws \InvalidArgumentException
      * @return \GuzzleHttp\Promise\PromiseInterface
      */
     public function itemBulkUploadsAsync(
         string $feedType,
-        \SplFileObject $file
+        string $json
     ): PromiseInterface {
-        return $this->itemBulkUploadsAsyncWithHttpInfo($feedType, $file)
+        return $this->itemBulkUploadsAsyncWithHttpInfo($feedType, $json)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -2760,17 +2704,17 @@ class ItemsApi extends BaseApi
      * Bulk Item Setup (Multiple)
      *
      * @param  string $feedType The feed Type (required)
-     * @param  \SplFileObject $file (required)
+     * @param  string $json JSON payload for item setup (required)
      *
      * @throws \InvalidArgumentException
      * @return \GuzzleHttp\Promise\PromiseInterface
      */
     protected function itemBulkUploadsAsyncWithHttpInfo(
         string $feedType,
-        \SplFileObject $file,
+        string $json
     ): PromiseInterface {
         $returnType = '\Walmart\Models\MP\US\Items\FeedId';
-        $request = $this->itemBulkUploadsRequest($feedType, $file);
+        $request = $this->itemBulkUploadsRequest($feedType, $json);
         $this->writeDebug($request);
         $this->writeDebug((string) $request->getBody());
 
@@ -2780,13 +2724,10 @@ class ItemsApi extends BaseApi
                 function ($response) use ($returnType) {
                     $this->writeDebug($response);
                     $this->writeDebug((string) $response->getBody());
-                    if ($returnType === '\SplFileObject') {
-                        $content = $response->getBody(); //stream goes to serializer
-                    } else {
-                        $content = (string) $response->getBody();
-                        if ($returnType !== 'string') {
-                            $content = json_decode($content);
-                        }
+
+                    $content = (string) $response->getBody();
+                    if ($returnType !== 'string') {
+                        $content = json_decode($content);
                     }
 
                     return ObjectSerializer::deserialize($content, $returnType, $response->getHeaders());
@@ -2816,14 +2757,14 @@ class ItemsApi extends BaseApi
      * Create request for operation 'itemBulkUploads'
      *
      * @param  string $feedType The feed Type (required)
-     * @param  \SplFileObject $file (required)
+     * @param  string $json JSON payload for item setup (required)
      *
      * @throws \InvalidArgumentException
      * @return \GuzzleHttp\Psr7\Request
      */
     protected function itemBulkUploadsRequest(
         string $feedType,
-        \SplFileObject $file,
+        string $json
     ): Request {
         $contentType = self::contentTypes['itemBulkUploads'];
 
@@ -2833,18 +2774,13 @@ class ItemsApi extends BaseApi
                 'Missing the required parameter $feedType when calling itemBulkUploads'
             );
         }
-        // verify the required parameter 'file' is set
-        if ($file === null || (is_array($file) && count($file) === 0)) {
+        // verify the required parameter 'json' is set
+        if (empty($json)) {
             throw new \InvalidArgumentException(
-                'Missing the required parameter $file when calling itemBulkUploads'
+                'Missing the required parameter $json when calling itemBulkUploads'
             );
         }
         $resourcePath = '/v3/feeds';
-        $formParams = [];
-        $queryParams = [];
-        $headerParams = [];
-        $httpBody = '';
-        $multipart = false;
         $method = 'POST';
 
         // query params
@@ -2859,67 +2795,24 @@ class ItemsApi extends BaseApi
             ) ?? [],
         );
 
-        // form params
-        if ($file !== null) {
-            $multipart = true;
-            $formParams['file'] = [];
-            $paramFiles = is_array($file) ? $file : [$file];
-            foreach ($paramFiles as $paramFile) {
-                $formParams['file'][] = \GuzzleHttp\Psr7\Utils::tryFopen(
-                    ObjectSerializer::toFormValue($paramFile),
-                    'rb'
-                );
-            }
-        }
-
         $headers = $this->headerSelector->selectHeaders(
             ['application/json'],
             $contentType,
-            $multipart
+            false
         );
 
         $defaultHeaders = parent::getDefaultHeaders();
         if ($this->config->getUserAgent()) {
             $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
         }
+
         $headers = array_merge(
-            $defaultHeaders,
-            $headerParams,
+            $defaultHeaders, 
             $headers
         );
 
-        // for model (json/xml)
-        if (count($formParams) > 0) {
-            if ($multipart) {
-                $multipartContents = [];
-                foreach ($formParams as $formParamName => $formParamValue) {
-                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
-                    foreach ($formParamValueItems as $formParamValueItem) {
-                        $multipartContents[] = [
-                            'name' => $formParamName,
-                            'contents' => $formParamValueItem
-                        ];
-                    }
-                }
-                // for HTTP post (form)
-                $httpBody = new MultipartStream($multipartContents);
-            } elseif (stripos($headers['Content-Type'], 'application/json') !== false) {
-                # if Content-Type contains "application/json", json_encode the form parameters
-                $httpBody = \GuzzleHttp\Utils::jsonEncode($formParams);
-            } else {
-                // for HTTP post (form)
-                $httpBody = ObjectSerializer::buildQuery($formParams);
-            }
-        }
-
+        
         $query = ObjectSerializer::buildQuery($queryParams);
-        $requestInfo = [
-            'path' => $resourcePath,
-            'method' => $method,
-            'timestamp' => $defaultHeaders['WM_SEC.TIMESTAMP'],
-            'query' => $query,
-        ];
-
         // this endpoint requires Bearer authentication (access token)
         $token = $this->config->getAccessToken();
         if ($token) {
@@ -2931,7 +2824,7 @@ class ItemsApi extends BaseApi
             $method,
             $operationHost . $resourcePath . ($query ? "?{$query}" : ''),
             $headers,
-            $httpBody
+            $json
         );
     }
 
