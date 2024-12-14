@@ -47,7 +47,7 @@ class InventoryApi extends BaseApi
         'getMultiNodeInventoryForAllSkuAndAllShipNodes' => 'application/json',
         'getMultiNodeInventoryForSkuAndAllShipnodes' => 'application/json',
         'getWFSInventory' => 'application/json',
-        'updateBulkInventory' => 'multipart/form-data',
+        'updateBulkInventory' => 'application/json',
         'updateInventoryForAnItem' => 'application/json',
         'updateMultiNodeInventory' => 'application/json',
     ];
@@ -1369,7 +1369,7 @@ class InventoryApi extends BaseApi
      * Bulk Item Inventory Update
      *
      * @param  string $feedType The feed Type (required)
-     * @param  \SplFileObject $file Feed file to upload (required)
+     * @param  string $json JSON payload for inventory update (required)
      * @param  string $shipNode The shipNode for which the inventory is to be updated. Not required in case of Multi Node Inventory Update Feed (feedType=MP_INVENTORY) (optional)
      *
      * @throws \Walmart\ApiException on non-2xx response
@@ -1378,10 +1378,10 @@ class InventoryApi extends BaseApi
      */
     public function updateBulkInventory(
         string $feedType,
-        \SplFileObject $file,
+        string $json,
         ?string $shipNode = null
     ): \Walmart\Models\MP\US\Inventory\FeedId {
-        return $this->updateBulkInventoryWithHttpInfo($feedType, $file, $shipNode);
+        return $this->updateBulkInventoryWithHttpInfo($feedType, $json, $shipNode);
     }
 
     /**
@@ -1390,7 +1390,7 @@ class InventoryApi extends BaseApi
      * Bulk Item Inventory Update
      *
      * @param  string $feedType The feed Type (required)
-     * @param  \SplFileObject $file Feed file to upload (required)
+     * @param  string $json JSON payload for inventory update (required)
      * @param  string $shipNode The shipNode for which the inventory is to be updated. Not required in case of Multi Node Inventory Update Feed (feedType=MP_INVENTORY) (optional)
      *
      * @throws \Walmart\ApiException on non-2xx response
@@ -1399,10 +1399,10 @@ class InventoryApi extends BaseApi
      */
     protected function updateBulkInventoryWithHttpInfo(
         string $feedType,
-        \SplFileObject $file,
+        string $json,
         ?string $shipNode = null,
     ): \Walmart\Models\MP\US\Inventory\FeedId {
-        $request = $this->updateBulkInventoryRequest($feedType, $file, $shipNode);
+        $request = $this->updateBulkInventoryRequest($feedType, $json, $shipNode);
         $this->writeDebug($request);
         $this->writeDebug((string) $request->getBody());
 
@@ -1449,41 +1449,21 @@ class InventoryApi extends BaseApi
                     (string) $response->getBody()
                 );
             }
-            switch ($statusCode) {
-                case 200:
-                    if ('\Walmart\Models\MP\US\Inventory\FeedId' === '\SplFileObject') {
-                        $content = $response->getBody(); //stream goes to serializer
-                    } else {
-                        $content = (string) $response->getBody();
-                        if ('\Walmart\Models\MP\US\Inventory\FeedId' !== 'string') {
-                            $content = json_decode($content);
-                        }
-                    }
-
-                    return ObjectSerializer::deserialize($content, '\Walmart\Models\MP\US\Inventory\FeedId', $response->getHeaders());
-            }
-
             $returnType = '\Walmart\Models\MP\US\Inventory\FeedId';
-            if ($returnType === '\SplFileObject') {
-                $content = $response->getBody(); //stream goes to serializer
-            } else {
-                $content = (string) $response->getBody();
-                if ($returnType !== 'string') {
-                    $content = json_decode($content);
-                }
+            $content = (string) $response->getBody();
+            if ($returnType !== 'string') {
+                $content = json_decode($content);
             }
 
             return ObjectSerializer::deserialize($content, $returnType, $response->getHeaders());
         } catch (ApiException $e) {
-            switch ($e->getCode()) {
-                case 200:
-                    $data = ObjectSerializer::deserialize(
-                        $e->getResponseBody(),
-                        '\Walmart\Models\MP\US\Inventory\FeedId',
-                        $e->getResponseHeaders()
-                    );
-                    $e->setResponseObject($data);
-                    break;
+            if ($e->getCode() === 200) {
+                $data = ObjectSerializer::deserialize(
+                    $e->getResponseBody(),
+                    '\Walmart\Models\MP\US\Inventory\FeedId',
+                    $e->getResponseHeaders()
+                );
+                $e->setResponseObject($data);
             }
 
             $this->writeDebug($e);
@@ -1497,7 +1477,7 @@ class InventoryApi extends BaseApi
      * Bulk Item Inventory Update
      *
      * @param  string $feedType The feed Type (required)
-     * @param  \SplFileObject $file Feed file to upload (required)
+     * @param  string $json JSON payload for inventory update (required)
      * @param  string $shipNode The shipNode for which the inventory is to be updated. Not required in case of Multi Node Inventory Update Feed (feedType=MP_INVENTORY) (optional)
      *
      * @throws \InvalidArgumentException
@@ -1505,10 +1485,10 @@ class InventoryApi extends BaseApi
      */
     public function updateBulkInventoryAsync(
         string $feedType,
-        \SplFileObject $file,
+        string $json,
         ?string $shipNode = null
     ): PromiseInterface {
-        return $this->updateBulkInventoryAsyncWithHttpInfo($feedType, $file, $shipNode)
+        return $this->updateBulkInventoryAsyncWithHttpInfo($feedType, $json, $shipNode)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -1522,7 +1502,7 @@ class InventoryApi extends BaseApi
      * Bulk Item Inventory Update
      *
      * @param  string $feedType The feed Type (required)
-     * @param  \SplFileObject $file Feed file to upload (required)
+     * @param  string $json JSON payload for inventory update (required)
      * @param  string $shipNode The shipNode for which the inventory is to be updated. Not required in case of Multi Node Inventory Update Feed (feedType=MP_INVENTORY) (optional)
      *
      * @throws \InvalidArgumentException
@@ -1530,11 +1510,11 @@ class InventoryApi extends BaseApi
      */
     protected function updateBulkInventoryAsyncWithHttpInfo(
         string $feedType,
-        \SplFileObject $file,
+        string $json,
         ?string $shipNode = null,
     ): PromiseInterface {
         $returnType = '\Walmart\Models\MP\US\Inventory\FeedId';
-        $request = $this->updateBulkInventoryRequest($feedType, $file, $shipNode);
+        $request = $this->updateBulkInventoryRequest($feedType, $json, $shipNode);
         $this->writeDebug($request);
         $this->writeDebug((string) $request->getBody());
 
@@ -1580,7 +1560,7 @@ class InventoryApi extends BaseApi
      * Create request for operation 'updateBulkInventory'
      *
      * @param  string $feedType The feed Type (required)
-     * @param  \SplFileObject $file Feed file to upload (required)
+     * @param  string $json JSON payload for inventory update (required)
      * @param  string $shipNode The shipNode for which the inventory is to be updated. Not required in case of Multi Node Inventory Update Feed (feedType=MP_INVENTORY) (optional)
      *
      * @throws \InvalidArgumentException
@@ -1588,7 +1568,7 @@ class InventoryApi extends BaseApi
      */
     protected function updateBulkInventoryRequest(
         string $feedType,
-        \SplFileObject $file,
+        string $json,
         ?string $shipNode = null,
     ): Request {
         $contentType = self::contentTypes['updateBulkInventory'];
@@ -1599,18 +1579,13 @@ class InventoryApi extends BaseApi
                 'Missing the required parameter $feedType when calling updateBulkInventory'
             );
         }
-        // verify the required parameter 'file' is set
-        if ($file === null || (is_array($file) && count($file) === 0)) {
+        // verify the required parameter 'json' is set
+        if (empty($json)) {
             throw new \InvalidArgumentException(
-                'Missing the required parameter $file when calling updateBulkInventory'
+                'Missing the required parameter $json when calling updateBulkInventory'
             );
         }
         $resourcePath = '/v3/feeds';
-        $formParams = [];
-        $queryParams = [];
-        $headerParams = [];
-        $httpBody = '';
-        $multipart = false;
         $method = 'POST';
 
         // query params
@@ -1632,24 +1607,11 @@ class InventoryApi extends BaseApi
                 false // required
             ) ?? [],
         );
-
-        // form params
-        if ($file !== null) {
-            $multipart = true;
-            $formParams['file'] = [];
-            $paramFiles = is_array($file) ? $file : [$file];
-            foreach ($paramFiles as $paramFile) {
-                $formParams['file'][] = \GuzzleHttp\Psr7\Utils::tryFopen(
-                    ObjectSerializer::toFormValue($paramFile),
-                    'rb'
-                );
-            }
-        }
-
+        
         $headers = $this->headerSelector->selectHeaders(
             ['application/json'],
             $contentType,
-            $multipart
+            false
         );
 
         $defaultHeaders = parent::getDefaultHeaders();
@@ -1657,42 +1619,10 @@ class InventoryApi extends BaseApi
             $defaultHeaders['User-Agent'] = $this->config->getUserAgent();
         }
         $headers = array_merge(
-            $defaultHeaders,
-            $headerParams,
+            $defaultHeaders, 
             $headers
         );
-
-        // for model (json/xml)
-        if (count($formParams) > 0) {
-            if ($multipart) {
-                $multipartContents = [];
-                foreach ($formParams as $formParamName => $formParamValue) {
-                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
-                    foreach ($formParamValueItems as $formParamValueItem) {
-                        $multipartContents[] = [
-                            'name' => $formParamName,
-                            'contents' => $formParamValueItem
-                        ];
-                    }
-                }
-                // for HTTP post (form)
-                $httpBody = new MultipartStream($multipartContents);
-            } elseif (stripos($headers['Content-Type'], 'application/json') !== false) {
-                # if Content-Type contains "application/json", json_encode the form parameters
-                $httpBody = \GuzzleHttp\Utils::jsonEncode($formParams);
-            } else {
-                // for HTTP post (form)
-                $httpBody = ObjectSerializer::buildQuery($formParams);
-            }
-        }
-
         $query = ObjectSerializer::buildQuery($queryParams);
-        $requestInfo = [
-            'path' => $resourcePath,
-            'method' => $method,
-            'timestamp' => $defaultHeaders['WM_SEC.TIMESTAMP'],
-            'query' => $query,
-        ];
 
         // this endpoint requires Bearer authentication (access token)
         $token = $this->config->getAccessToken();
@@ -1705,7 +1635,7 @@ class InventoryApi extends BaseApi
             $method,
             $operationHost . $resourcePath . ($query ? "?{$query}" : ''),
             $headers,
-            $httpBody
+            $json
         );
     }
 
